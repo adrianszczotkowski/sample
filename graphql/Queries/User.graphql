@@ -1,0 +1,14 @@
+extend type Query
+{
+    user(
+        id: ID @eq @rules(apply: ["prohibits:email", "required_without:email"])
+        email: String @eq @rules(apply: ["prohibits:id", "required_without:id", "email"])
+    ): User
+    @find
+
+    users(
+        "Filters by name. Accepts SQL LIKE wildcards `%` and `_`."
+        name: String @where(operator: "like")
+    ): [User!]!
+    @paginate(defaultCount: 10)
+}

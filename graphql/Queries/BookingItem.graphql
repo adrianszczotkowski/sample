@@ -1,0 +1,14 @@
+extend type Query
+{
+    bookingItem(
+        id: ID @eq
+    ): BookingItem
+    @find
+
+    bookingItems(
+        user_id: Int @eq
+        booking_item_id: Int @eq
+        booking_day: Date @eq
+    ): [BookingItem!]!
+    @paginate
+}

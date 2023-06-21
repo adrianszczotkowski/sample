@@ -1,0 +1,48 @@
+#!/bin/bash
+
+. ./.env
+
+echo -e "\nLaravel sample app v.\e[33m1.0\e[0m\n"
+
+if [[ "$1" == '-d' ]] || [[ "$1" == '-r' ]]; then
+  docker compose down -t 0
+fi
+
+if [[ "$1" == '-u' ]] || [[ "$1" == '-r' ]]; then
+  docker compose up -d
+fi
+
+if [[ "$1" == "-c" ]] && [[ "$2" =~ ^${APP_NAME}-.*$ ]]; then
+  docker exec -it "$2" bash
+fi
+
+if [[ "$1" == "-l" ]] && [[ "$2" =~ ^${APP_NAME}-.*$ ]]; then
+  docker logs -f "$2"
+fi
+
+if [[ "$1" == "-s" ]] && [[ "$2" =~ ^${APP_NAME}-.*$ ]]; then
+  docker container restart "$2"
+fi
+
+if [[ "$1" == '-a' ]]; then
+      chown -R 1000:1000 /var/www/html
+      chmod -R a+rwX /var/www/html
+      composer install
+      php artisan migrate:fresh
+      php artisan db:seed
+      php artisan optimize:clear
+fi
+
+if [[ ! "$1" =~ ^-[durclsa]$ ]]; then
+  echo -e "Usage: \e[93m./${APP_NAME}\e[0m \e[94m\e[1m[option]\e[0m\n\n\
+    \e[94m\e[1m-c [container]\e[0m enter shell\n\
+    \e[94m\e[1m-l [container]\e[0m show logs\n\
+    \e[94m\e[1m-s [container]\e[0m restart container\n\
+    \e[94m\e[1m-u\e[0m start up app\n\
+    \e[94m\e[1m-d\e[0m shut down app\n\
+    \e[94m\e[1m-r\e[0m restart app\n"
+  echo -e "\e[33mCurrently running app docker images:\e[0m\n"
+  docker ps --format "{{.ID}}: {{.Names}}" | grep ${APP_NAME}
+fi
+
+exit 0

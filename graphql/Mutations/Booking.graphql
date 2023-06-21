@@ -1,0 +1,21 @@
+extend type Mutation
+{
+    createBooking(
+        user_id: Int!
+        booking_item_id: Int!
+        from: Date!
+        to: Date!
+        emptyOnly: Boolean!
+    ): [Booking]
+    @field(resolver: "App\\Resolvers\\BookingResolver")
+
+    deleteBooking(
+        id: ID! @whereKey
+    ): Booking
+    @delete
+
+    restoreBooking(
+        id: ID! @whereKey
+    ): Booking
+    @restore
+}

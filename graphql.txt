@@ -1,0 +1,100 @@
+query a {
+  bookings(first: 10, user_id: 1) {
+    data {
+      id
+      user {
+        id
+      }
+      booking_day
+      bookingItem {
+        id
+        name
+        price
+      }
+    }
+  }
+}
+
+query b {
+  bookingItems(first: 10) {
+    data {
+      id
+      name
+      translatedName
+      price
+      currency
+      bookings {
+        created_at
+        id
+        booking_day
+      }
+    }
+  }
+}
+
+query c {
+  user(id: 1) {
+    id
+    name
+    payments {
+      amount
+      currency
+    }
+    bookings {
+      id
+      created_at
+      booking_day
+      bookingItem {
+        name
+      }
+    }
+  }
+}
+
+query d {
+  bookingPrice(
+    user_id: 1
+    booking_item_id: 2
+    from: "2023-01-20"
+    to: "2023-01-20"
+    simulatePrice: true
+  ) {
+    currency
+    amount
+  }
+}
+
+mutation e {
+  upsertBookingItem(id: 4, name: "Tent", area: 4, price: 3000, currency: PLN) {
+    id
+    name
+    area
+    price
+    currency
+  }
+}
+
+mutation f {
+  deleteBookingItem(id: 1) {
+    id
+  }
+}
+
+mutation g {
+  restoreBookingItem(id: 1) {
+    id
+  }
+}
+
+mutation h {
+  createBooking(
+    user_id: 1
+    booking_item_id: 2
+    from: "2023-02-07"
+    to: "2023-02-07"
+    emptyOnly: true
+  ) {
+    id
+    created_at
+  }
+}

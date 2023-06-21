@@ -1,0 +1,13 @@
+type BookingItem {
+    id: ID
+    created_at: DateTime
+    updated_at: DateTime
+    deleted_at: DateTime
+    name: String
+    translatedName: String
+    bed_count: Int
+    area: Int
+    price: Int
+    currency: Currency
+    bookings: [Booking]
+}

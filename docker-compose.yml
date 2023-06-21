@@ -1,0 +1,88 @@
+version: '3.9'
+
+networks:
+  sample-network:
+    name: sample-network
+    driver: bridge
+
+services:
+  sample-laravel:
+    platform: 'linux/amd64'
+    container_name: sample-laravel
+    build:
+      context: ./docker/sample-laravel
+      dockerfile: Dockerfile
+      args:
+        WWWGROUP: 1000
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports:
+      - '800:80'
+    environment:
+      TZ: Europe/Warsaw
+      WWWUSER: 1000
+      LARAVEL_SAIL: 1
+      XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
+      XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
+    volumes:
+      - '.:/var/www/html'
+    networks:
+      - sample-network
+    depends_on:
+      - sample-mysql
+    healthcheck:
+      test: [ "CMD", "php", "-v" ]
+      retries: 3
+      timeout: 5s
+
+  sample-mysql:
+    platform: 'linux/amd64'
+    container_name: sample-mysql
+    image: 'mysql:latest'
+    env_file: .env
+    ports:
+      - '306:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_DATABASE: '${DB_DATABASE}'
+      MYSQL_USER: '${DB_USERNAME}'
+      MYSQL_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+      TZ: Europe/Warsaw
+    cap_add:
+      - SYS_NICE
+    volumes:
+      - ./docker/sample-mysql/:/docker-entrypoint-initdb.d
+      - '${DOCKER_MYSQL_VOLUME}:/var/lib/mysql'
+    networks:
+      - sample-network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}" ]
+      retries: 3
+      timeout: 5s
+    command: [ "--innodb_redo_log_capacity=1G" ]
+
+  sample-redis:
+    platform: 'linux/amd64'
+    environment:
+      TZ: Europe/Warsaw
+    container_name: sample-redis
+    image: 'redis:alpine'
+    ports:
+      - '379:6379'
+    volumes:
+      - 'sample-redis:/data'
+    networks:
+      - sample-network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      retries: 3
+      timeout: 5s
+
+volumes:
+  sample-mysql:
+    name: sample-mysql
+    driver: local
+  sample-redis:
+    name: sample-redis
+    driver: local

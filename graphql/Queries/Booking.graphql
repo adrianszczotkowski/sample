@@ -1,0 +1,23 @@
+extend type Query
+{
+    booking(
+        id: ID @eq
+    ): Booking
+    @find
+
+    bookings(
+        user_id: Int @eq
+        booking_item_id: Int @eq
+        booking_day: Date @eq
+    ): [Booking!]!
+    @paginate
+
+    bookingPrice(
+        user_id: Int!
+        booking_item_id: Int!
+        from: Date!
+        to: Date!
+        simulatePrice: Boolean!
+    ): Money!
+    @field(resolver: "App\\Resolvers\\BookingResolver@price")
+}

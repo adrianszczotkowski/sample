@@ -1,0 +1,22 @@
+extend type Mutation
+{
+    upsertBookingItem(
+        id: Int
+        name: String!
+        area: Int!
+        price: Int!
+        currency: Currency
+    ): BookingItem
+    @upsert
+
+    deleteBookingItem(
+        id: ID! @whereKey
+    ): BookingItem
+    @delete
+
+    restoreBookingItem(
+        id: ID! @whereKey
+    ): BookingItem
+    @restore
+    @guard
+}

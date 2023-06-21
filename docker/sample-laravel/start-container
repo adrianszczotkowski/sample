@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+usermod -u 1000 sail
+
+if [ ! -d /.composer ]; then
+  mkdir /.composer
+fi
+
+chmod -R ugo+rw /.composer
+
+wait-for sample-mysql:3306 -t 600 -- /var/www/html/sample -a
+
+if [ $# -gt 0 ]; then
+  exec gosu 1000 "$@"
+else
+  /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+fi
